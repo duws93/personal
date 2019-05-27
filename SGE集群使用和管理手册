@@ -1,0 +1,288 @@
+SGE---远程调度作业
+网格--执行任务的计算资源的集合,用户将网格视作单个计算资源
+SGE接受由用户提交的作业,并根据资源管理策略将作业安排在网格
+合适的系统上.
+SGE原理--依据管理者制定的规则,检测网格内所有的资源,自动的
+最优分配资源
+用户通过SGE提交任务的时候描述任务的相关信息,如可用的队列,作业
+需要分配的内存和CPU等信息.用户为配置这些信息时候,SGE会去检索
+用户的身份,用户和项目,所属用户组的从属关系.
+
+SGE的用户
+	1：管理人员--对SGE集群具备进行全面操控的权限，在缺省的情况下主控主机及其
+	队列所在的任何计算机的超级用户均具备管理人员权限。
+	2：操作人员--具备与管理人员相同的执行命令，但是无添加，修改，删除队列权限
+	3：拥有者--具备暂停/取消暂停或者禁用/启用所拥有队列
+
+SGE主机:
+1:主控主机
+	主控主机是所有群集活动的中心。主控主机运行主守护进程sge_qmaster 和调度程序守护进程sge_schedd。两个守护进程都控制Grid Engine 系统组件，例如，队列和作业。守护进程维护着关于组件状态的表格、关于用户访问权限的表格以及其他任务的表格。
+	默认情况下，主控主机也是管理主机和提交主机
+2:执行主机
+	执行主机是有权限执行作业的系统。因此，执行主机具有附加到它的队列实例。执行主机运行执行守护进程sge_execd。
+	qconf -sel 显示执行主机
+3:管理主机
+	管理主机有权限运行Grid Engine 系统的任何类型的管理操作
+	qconf -sh  显示管理主机	
+4:提交主机
+	提交主机只允许用户提交和控制批处理作业。具体地说，用户登录提交主机后，可以使用qsub 命令提交作业、使用qstat 命令监视作业状态。
+	qconf -ss  显示提交主机
+
+
+配置管理人员账户：
+	1：qconf -am name[,...]
+	将添加管理人员到SGE管理人员列表，缺省时均为各主机的root用户
+	2：qconf -dm name[,...]
+	删除指定管理人员
+	3：qconf -sm 
+	显示管理人员名单
+配置操作人员账户：
+	1: qconf -ao name[,...]
+	添加操作人员
+	2: qconf -do name[,...]
+	删除指定操作人员
+	3: qconf -so
+	显示操作人员名单
+配置用户访问列表：
+	1: qconf -au name[,...] listname[,...]
+	将指定用户添加到指定访问列表
+	2: qconf -du name[,...] listname[,...]
+	将指定用户从指定访问列表删除
+	3: qconf -su listname[,...]
+	显示指定访问列表的用户
+	4: qconf -sul 
+	显示已定义的访问列表
+
+队列概念--是节点上运行所有任务的容器,为任务提供服务,允许同时运行多个任务,系统会试着
+找符合最小的队列开始任务.
+配置队列:
+	1: qconf -aq queuename
+	添加一个模板队列,若提供参数队列名,将以其为模板
+	2: qconf -Aq filename
+	用文件名来定义一个队列
+	3: qconf -cq queuename
+	清除指定队列的状态,使之闲置,停止运作.常用于排错情形.
+	4: qconf -dq queuename
+	删除队列
+	5: qconf -mq queuename
+	修改指定队列的配置
+	6: qconf -Mq queuename
+	使用文件名来定义已修改的队列配置.
+	7: qconf -sq queuename
+	显示缺省队模板队列配置
+	8: qconf -sql 
+	显示当前已配置的队列列表.
+
+队列属性的详细说明:
+		qname – 请求的队列名称。
+    hostlist – 与队列相关联的主机和主机组的列表。
+    processors – 该队列可以访问的多处理器系统的处理器。（除非必要，否则请不要修改这些参数值。)
+    qtype – 队列中可以运行的作业类型。当前，作业类型可为批处理或交互式。
+    slots – 可以和该队列同时执行的作业数。
+    owner_list – 队列拥有者，在管理人员、操作员和拥有者中有介绍。
+    user_lists – 用户访问权限列表中列在该参数下的用户或组标识符可以访问该队列。
+    xuser_lists – 用户访问权限列表中列在该参数下的用户或组标识符不能访问该队列。
+    project_lists – 列在该参数下的带有项目标识符的提交作业有权访问该队列。
+    xproject_lists – 列在该参数下的带有项目标识符的提交作业不能访问该队列。
+    complex_values – 根据提供给队列的特定属性定义集资源属性指定性能。
+
+
+集群配置
+	1: qconf -sconf
+	显示全局配置
+	2: qconf -sconf hostname
+	显示指定主机配置
+	3: qconf -mconf global
+	修改全局配置
+	4: qconf -mconf hostname
+	修改指定主机配置
+	
+
+SGE用户命令:
+1: qdel--删除操作
+2: qhold--阻止已提交的作业执行
+3: qhost--显示执行主机列表
+4: qlogin--启动telnet会话,自动选择负荷较低并且适合的主机
+5: qmod--队列拥有者暂停或者启用队列.
+6: qresub--复制正在允许或者暂挂的作业,创建新的作业
+7: qrls--释放先前被阻止执行的作业
+8: qrsh--远程交互应用程序,允许提交批处理作业,在作业期间
+一直保持活动状态允许SGE控制并行任务.
+9: qstat--显示集群相关的作业和队列的状态
+10:qsub--将作业提交到SGE用户
+11:qmake--取代unix make命令,能够将相互独立的make分配到一组合适
+的机器上执行
+
+
+
+常用命令:
+
+qsub -hold_jid 45,46 scriptname
+指定45,46号作业在scriptname之后执行.
+
+qsub -p 100 scriptname，优先级范围是(-1023到1024,默认是0)
+指定作业的等级,优先级较高的job会抢占那些较低的job资源,
+即让优先级较低的job暂停作业,较高结束后恢复执行.
+
+qsub -cwd -l vf=*G -q all.q h=node1  -P project *.sh 
+qsub -cwd -S /bin/bash -l vf=*G -q all.q h=node1  -P project *.sh
+-l 表明作业运行需要的资源.
+	 vf=*G 任务的预估内存，内存估计的值应稍微大于真实的内存，内存预估偏小可能会导致节点跑挂。
+-q 指定要投递到的队列，如果不指定的话，SGE会在用户可使用的队列中选择一个满足要求的队列
+	 队列就是计算机的队列，一个队列只有一些特定的计算节点，你投了哪个节点，你就只能用该节点指定的计算资源。
+-h 指定执行节点执行作业
+-P 指明任务所属的项,主要是为了后期方便统计计算资源的消耗,用途不大.
+-o  path 	定义标准输出文件路径、文件名
+-e  path 	#定义标准错误输出文件路径、文件名
+-j  y[es]|n[o] 	#定义作业的标准错误输出是否写入到输出文件中
+-now y[es]|n[o] 	#立即执行作业
+-a date_time 	#作业开始运行时间
+-M user[@host] 	#定义邮件地址
+-N job_name 	#重命名作业名
+-r y[es]|n[o] 	#定义作业失败后是否重新运行 -
+v variable 	#定义环境变量
+-dl date_time 	#定义作业到期时间，在作业到期时间之前，作业的优先级会逐步提高，直到管理员指定的最高级别。
+
+因为SGE默认使用的是tcsh，而*.sh使用的是bash，
+所以应该在投递的时候指明命令解释器。
+若非要使用方法一的话，
+可以在脚本*.sh的开头加上#$ -S /bin/bash
+
+监控命令:
+qstat -F    显示使用队列的资源
+qstat -g c  显示队列
+qstat -g d  显示所有排队的任务
+qstat -g t  显示平行任务
+qstat -j taskid  显示指定任务的调度器信息
+qstat -s {p|r|s|z|hu|ho|hs|hd|hj|ha|h|a}    显示该状态的任务
+qstat -t    显示任务信息
+qstat -urg  显示任务紧急信息
+qstat -pri  显示任务优先级
+
+qlogin -l hostname=nodename
+qmod -c queuelist 处理队列执行主机states为E的情况
+
+qacct -j 追踪队列处理任务的情况
+
+
+
+修改SGE集群中某队列里各个执行主机的CPU数(slots）
+以all.q队列为例。
+qconf -mq all.q 打开队列配置文件
+找到slots所在那行，编辑：
+slots   1,[hostname1=3],[houstname2=5]  （逗号前是指没用中括号指定的默认值）
+保存便设置好了
+
+
+实现SGE集群并行环境处理批作业
+	SGE使用openmpi来支持SGE并行环境的，目前安装已经可以实现并行环境
+	1：添加pe(parallel environment)
+	qconf -ap 环境名称 --添加平行环境
+	qconf -sp 环境名称 --显示平行环境
+	则会看到：
+			pe_name            openmp
+
+ 			slots              0
+
+			user_lists         NONE
+
+			xuser_lists        NONE
+
+			start_proc_args    /bin/true
+
+			stop_proc_args     /bin/true
+
+			allocation_rule    $pe_slots
+
+			control_slaves     FALSE
+
+			job_is_first_task  TRUE
+
+			urgency_slots      min
+
+			accounting_summary FALSE
+	
+ 修改参数：
+		pe_name            openmp
+
+		slots               1000
+
+		user_lists          NONE
+
+		xuser_lists         NONE
+
+		start_proc_args    /bin/true $pe_slots
+
+		stop_proc_args     /bin/true
+
+		allocation_rule    $round_robin
+
+		control_slaves     TRUE
+
+		job_is_first_task  FALSE
+
+		urgency_slots      min
+
+		accounting_summary FALSE
+
+		然后保存。
+
+也可先将他们保存在一个文件中，
+然后用qconf –Ap filename来添加新的pe环境。
+另外还可以通过qmon命令。从图形界面进行添加。
+qconf –mp pename和 qconf –Mp pename可以用来更改pe的设置。
+
+
+2. 在queue中加入这个pe环境
+
+虽然添加了并行环境，但是此时通过这个并行环境提交的任务并不能被执行。
+必须将这个pe环境加入到相应的queue中，任务才能被分配到这个queue，进而被执行。
+例如要在all.q中加入这个pe环境
+		qconf –mq all.q
+则会看到
+			qname                 all.q
+
+			hostlist              @allhosts
+
+			seq_no                0
+
+			load_thresholds       np_load_avg=1.75
+
+			suspend_thresholds    NONE
+
+			nsuspend              1
+
+			suspend_interval      00:05:00
+
+			priority              0
+
+			min_cpu_interval      00:05:00
+
+			processors            UNDEFINED
+
+			qtype                 BATCH INTERACTIVE
+
+			ckpt_list             NONE
+
+			pe_list               make
+
+			rerun                 FALSE
+
+			slots                 1,[node3=8],[node1=8],[node2=8],[node4=8],[node5=8]......
+
+			tmpdir                /tmp
+
+			shell                 /bin/csh
+
+			prolog                NONE
+
+			epilog                NONE
+
+			shell_start_mode      posix_compliant
+
+			starter_method        NONE
+
+在列出的参数中修改pe_list参数，加入新建的pe环境的名字
+如：pe_list               openmp make
+表示openmp和make这两个pe环境的任务可以分配到这个队列中
+接下来就可以通过这个pe来提交任务了，如：qsub –pe openmp 16 test_openMp.sh
