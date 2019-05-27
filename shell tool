@@ -1,0 +1,178 @@
+sed -n '/pattern/p' file_name |sed -n 7,12p
+#pattern是你要查的内容
+#file_name是你要查的文件
+以上实现：打印出匹配结果中的7-12行
+ 
+sed -n '/pattern/{7,12p}' file_name
+以上实现将文件中7到12行中匹配的数据显示出来
+
+
+
+sed 's/$/ ABC/' file1
+追加 ABC到每行末尾
+$为末尾符号，s代表替换末尾为 ABC
+
+
+awk中NR、FNR、NF、$NF、FS、OFS的说明 
+NR: 表示当前读取的行数
+FNR:当前修改了多少行
+NF:浏览记录的域的个数
+$NF: 最后一个列，输出最后一个列的内容
+FS:指定列分隔符，当FS为空的时候，awk会把一行中的每个字符，当成一列来处理。
+OFS：列输出分隔符
+
+
+Debian或者Ubuntu服务器，
+dpkg/apt-get
+这两个命令用来安装、卸载和更新包。
+
+
+dpkg -s firefox / dpkg-query -l firefox
+firefox是否安装了
+
+dpkg --get-selections
+系统中安装的所有包
+
+dpkg --get-selections | grep gcc
+dpkg命令查看系统中安装的gcc包
+
+dpkg -L gcc-4.8
+使用“-L”参数来找出包中文件的位置
+
+
+
+ansible apt 模块
+
+
+参数名 							是否必须 				默认值 	 		选项值 									参数说明
+cache_valid_time 			no 																								如果update_cache参数起作用的时候，这个参数才会起作用。其用来控制update_cache的整体有效时间
+deb 									no 																								这个用于安装远程机器上的.deb后缀的软件包
+default_release 			no 																								等同于apt命令的-t选项，这里就不多说了
+force 								no 							no 				yes/no 									强制执行apt install/remove
+install_recommends 		no 							Ture 			yes/no 									这个参数可以控制远程电脑上是否只是下载软件包，还是下载后安装，默认参数为true,设置为false的时候光下载软件包，不安装
+name 									no 																								apt要下载的软件包名字，支持name=git=1.6 这种制定版本的模式
+purge 								no 												yes/no 									如果state参数值为absent,这个参数为yes的时候，将会强行干净的卸载
+state 								no 						present 		latest/absent/present 	定义软件包的最终状态，latest时为安装最新软件
+update_cache 					no 						yes/no 															当这个参数为yes的时候等于apt-get update
+upgrade 							no 						yes 				yes/safe/full/dist 			如果参数为yes或者safe，等同于apt-get upgrade.如果是full就是完整更新。如果是dist等于apt-get dist-upgrade。
+
+
+
+# 在安装foo软件包前更新然后安装foo 
+- apt: name=foo update_cache=yes
+# 移除foo软件包 
+- apt: name=foo state=absent
+# 安装foo软件包 
+- apt: name=foo state=present
+# 安装foo 1.0软件包 
+- apt: name=foo=1.00 state=present
+# 安装nginx最新的名字为squeeze-backport发布包，并且安装前执行更新 
+- apt: name=nginx state=latest default_release=squeeze-backports update_cache=yes
+# 只下载openjdk-6-jdk最新的软件包，不安装 
+- apt: name=openjdk-6-jdk state=latest install_recommends=no
+# 安装所有软件包到最新版本 
+- apt: upgrade=dist
+# 更新apt-get的list 
+- apt: update_cache=yes
+# 3600秒后停止update_cache 
+- apt: update_cache=yes cache_valid_time=3600
+# 安装远程节点上的/tmp/mypackage.deb软件包 
+- apt: deb=/tmp/mypackage.deb
+
+
+
+CentOS7使用firewalld打开关闭防火墙与端口
+1.systemctl是CentOS7的服务管理工具中主要的工具，它融合之前service和chkconfig的功能于一体。
+
+启动一个服务：systemctl start firewalld.service
+关闭一个服务：systemctl stop firewalld.service
+重启一个服务：systemctl restart firewalld.service
+显示一个服务的状态：systemctl status firewalld.service
+在开机时启用一个服务：systemctl enable firewalld.service
+在开机时禁用一个服务：systemctl disable firewalld.service
+查看服务是否开机启动：systemctl is-enabled firewalld.service
+查看已启动的服务列表：systemctl list-unit-files|grep enabled
+查看启动失败的服务列表：systemctl --failed
+
+2.配置firewalld-cmd
+查看版本： firewall-cmd --version
+查看帮助： firewall-cmd --help
+显示状态： firewall-cmd --state
+查看所有打开的端口： firewall-cmd --zone=public --list-ports
+更新防火墙规则： firewall-cmd --reload
+查看区域信息:  firewall-cmd --get-active-zones
+查看指定接口所属区域： firewall-cmd --get-zone-of-interface=eth0
+拒绝所有包：firewall-cmd --panic-on
+取消拒绝状态： firewall-cmd --panic-off
+查看是否拒绝： firewall-cmd --query-panic
+ 
+那怎么开启一个端口呢
+添加
+firewall-cmd --zone=public --add-port=80/tcp --permanent    （--permanent永久生效，没有此参数重启后失效）
+重新载入
+firewall-cmd --reload
+查看
+firewall-cmd --zone= public --query-port=80/tcp
+删除
+firewall-cmd --zone= public --remove-port=80/tcp --permanent
+
+
+
+Linux经常用lsb_release 查看系统的版本
+yum查看lsb_release 属于哪个程序包里
+yum provides */lsb_release
+
+lsb_release -a 查看系统的版本
+
+
+
+修改已有的docker容器中的内容
+1：docker ps 列出容器
+
+2：docker cp 拷贝文件
+   从容器拷贝文件到宿主机
+   docker cp mycontainer:/opt/testnew/file.txt /opt/test/
+   从宿主机拷贝文件到容器
+   docker cp /opt/test/file.txt mycontainer:/opt/testnew/
+3：提交修改
+   docker commit -m "描述内容" -a "author name" 32555789dd00 aipaper/devinz83:v2
+其中，-m 来指定提交的说明信息，
+跟我们使用的版本控制工具一样；
+-a 可以指定更新的用户信息；
+之后是用来创建镜像的容器的 ID；
+最后指定目标镜像的仓库名和 tag 信息。
+创建成功后会返回这个镜像的 ID 信息。
+
+4：查看新创建的镜像
+   docker images
+   
+5：修改yml文件
+   
+6：使用变更后的镜像部署docker应用
+    docker stack deploy --compose-file=/opt/docker/yml/docker-compose-resty-redis.yml resty_redis
+    
+可添加redis集群密码的lua脚本
+https://github.com/steve0511/resty-redis-cluster
+
+    
+处理jenkins 配置安全策略admin没有Overall/Read权限
+
+1：ps -ef | grep jenkins 
+   找到jenkins的jenkins_home目录
+
+2：修改目录写的config.xml文件
+   在<authorizationStrategy>标签内部给指定user添加权限
+   <permission>hudson.model.Hudson.Administer:user</permission> 
+   <permission>hudson.model.Hudson.ConfigureUpdateCenter:user</permission> 
+   <permission>hudson.model.Hudson.Read:user</permission> 
+   <permission>hudson.model.Hudson.RunScripts:user</permission> 
+   <permission>hudson.model.Hudson.UploadPlugins:user</permission>
+   <permission>hudson.model.Item.Read:user</permission>
+   
+3：docker restart name
+   重启jenkins服务即可(name是容器的name或者ID)
+
+
+
+
+

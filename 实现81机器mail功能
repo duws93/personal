@@ -1,0 +1,60 @@
+The bugzilla : how to send mail in 135.251.193.81
+
+业务需求：使用mail 命令发送邮件即可
+
+处理方案：使用postfix mailx工具
+					实现本地账号发送邮件到指定邮箱
+					
+流程：
+1: 安装邮件服务postfix
+		yum install -y postfix  #安装
+		service postfix start   #启动
+		ss -tunl                #SMTP 25端口启用
+
+2: 安装邮件发送工具mailx
+		yum install -y mailx
+		
+		
+测试：
+		echo "message" |mail -s "subject" mail_address
+参数：
+		message: 内容
+		subject：主题
+		mail_address: 收件人地址
+
+错误处理：
+		status=deferred (Host or domain name not found. Name service error for name=nokia-sbell.com type=MX: Host not found, try again)	
+处理办法：
+		在/etc/resolv.conf文件中配置本地邮箱的Host or domain name
+		具体可参考文档：https://unix.stackexchange.com/questions/282966/postfix-mx-host-not-found
+
+
+		
+处理方案：使用postfix mailx工具
+					实现外部邮箱发送邮件到指定邮箱
+		
+流程：
+1: 安装邮件服务postfix
+		yum install -y postfix  #安装
+		service postfix start   #启动
+		ss -tunl                #SMTP 25端口启用
+
+2: 安装邮件发送工具mailx
+		yum install -y mailx
+		
+3：配置mail
+		vi /etc/mail.rc
+		
+set  from=lg1871212539@sina.com        #新浪注册的个人邮箱，用于zabbi服务端转发邮件到指定邮箱
+set  smtp=smtp.sina.com                       #填写新浪发送邮箱服务器地址smtp
+set  smtp-auth-user= lg1871212539      #新浪个人邮箱用户
+set  smtp-auth-password=lg123456      #新浪个人邮箱密码
+set  smtp-auth=login                           #登录
+
+4: 测试
+
+		echo "message" |mail -s "subject" mail_address
+参数：
+		message: 内容
+		subject：主题
+		mail_address: 收件人地址

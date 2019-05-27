@@ -1,0 +1,176 @@
+ansible 命令操作文档
+
+INVENTORY -- 连接的主机清单
+默认：/etc/ansible/hosts
+
+ansible.cfg -- 配置文件 
+默认: /etc/ansible/ansible.cfg
+读取配置顺序：
+1：环境变量设置的路径
+2：当前目录下的ansible.cfg
+3：当前用户home目录下的文件
+4：默认的配置文件
+
+Ansible.cfg中的常用配置:	
+- inventory：指定inventory文件的路径
+- remote_user：SSH连接时使用的用户名
+- remote_port：SSH连接时使用的端口号
+- private_key_file：SSH连接时使用的私钥文件
+- roles_path：查找roles的路径，可以指定多个查找路径，多个路径之间用冒号分隔
+- log_path：Ansible的日志文件路径
+- host_key_checking：类似于ssh命令中的StrictHostKeyChecking选项，当等于False时，不检查远程主机是否存在于Konw_hosts文件中
+- forks：并行进程的数量
+- gathering：控制收集Facts变量的策略
+
+ssh相关
+- ssh_args：可以通过这个参数控制Ansible的ssh连接
+- pipelining: 多个task之间共享SSH连接，开启pipelining能够有效提升Ansible的执行速度
+- control_path：保存ControlPath socket的路径
+
+权限提升相关
+- become：是否进行权限提升
+- become_method：权限提升的方式，默认为sudo
+- become_user：提升为哪个用户的权限，默认为root
+- become_ask_pass：默认为False，表示权限提升时不需要密码(设置为true时，手动输入密码，或者配置ansible_become_pass变量)
+
+查看模块
+1:ansible-doc -l 		获取当前ansible支持那些模块
+2:ansible-doc -s 模块名 	获取该模块支持哪些参数
+
+常用命令
+1:ansible '*' -m command -a 'uptime'
+-m command:命令行操作
+-a 参数
+
+# 指定节点上的权限，属主和数组为root
+2:ansible '*' -m file -a "dest=/tmp/t.sh mode=755 owner=root group=root"
+
+# 指定节点上创建一个组名为aaa，gid为2017的组
+3:ansible all -m group -a 'gid=2017 name=a'
+
+# 在节点上创建一个用户aaa，组为aaa
+4:ansible all -m user -a 'name=aaa groups=aaa state=present'
+
+#删除用户示例
+5:ansible all -m user -a 'name=aaa groups=aaa remove=yes'
+
+#指定节点上增加定时任务，每隔3分钟到主控端更新一次时间
+6:ansible '*' -m cron -a 'name="custom job" minute=*/3 hour=* day=* month=* weekday=* job="/usr/sbin/ntpdate 172.16.254.139"'
+
+#查询各个节点中的定时任务
+7:ansible all -m shell -a "sudo su -c 'crontab -l'"
+
+#删除定时任务
+8:ansible all -m cron -a "name='custom job' state=absent"
+
+#把这个定时任务存放在/etc/cron.d/目录下的某一个自定义文件中
+9:ansible all -m cron -a "name='custom job' minute=5 job='pwd' user='root' cron_file='testcronfile'"
+
+#从指定节点批量拷贝到各个节点文件
+10:ansible duws-1 -m copy -a "src=/root/.. backup=yes dest=/root/.."
+
+#修改主机名
+11:ansible 172.16.52.245 -m hostname -a "name=ansible-test245"
+
+# 在节点上安装httpd
+12:ansible all -m yum -a "state=present name=httpd"
+
+# 在节点上启动服务，并开机自启动
+13:ansible all -m service -a 'name=httpd state=started enabled=yes'
+
+# 检查主机连接
+14:ansible '*' -m ping
+
+# 执行远程命令
+15:ansible '*' -m command -a 'uptime'
+
+# 执行主控端脚本
+16:ansible '*' -m script -a '/root/test.sh'
+
+# 执行远程主机的脚本
+17:ansible '*' -m shell -a 'ps aux|grep zabbix'
+
+# 类似shell
+18:ansible '*' -m raw -a "ps aux|grep zabbix|awk '{print \$2}'"
+
+# 创建软链接
+19:ansible '*' -m file -a "src=/etc/resolv.conf dest=/tmp/resolv.conf state=link"
+
+# 删除软链接
+20:ansible '*' -m file -a "path=/tmp/resolv.conf state=absent"
+
+# 复制文件到远程服务器
+21:ansible '*' -m copy -a "src=/etc/ansible/ansible.cfg dest=/tmp/ansible.cfg owner=root group=root mode=0644"
+
+# 在节点上运行hostname
+22:ansible all -m raw -a 'hostname|tee'
+
+# 将指定url上的文件下载到/tmp下
+23:ansible all -m get_url -a 'url=http://10.1.1.116/favicon.ico dest=/tmp'
+
+# 在hosts配置文件中，对于相似的主机设置
+24:www[01:50].example.com
+
+# Ansible能够以并行的方式同时SCP大量的文件到多台机器. 
+25:ansible atlanta -m copy -a "src=/etc/hosts dest=/tmp/hosts"
+
+
+Ansible 可同时操作属于一个组的多台主机,组和主机之间的关系通过 
+inventory 文件配置. 默认的文件路径为 /etc/ansible/hosts
+除默认文件外,你还可以同时使用多个 inventory 文件,
+也可以从动态源,或云上拉取.即通过脚本获取主机列表，并按照ansible
+要求的格式返回给ansile命令。这部分会结合CMDB系统,zabbix系统来获取
+主机的信息。
+由于主机资源一般会动态的进行增减，或者进行智能更新，一般会通过这些
+工具的API或者接入库查询的方式获取主机列表。
+
+
+设置的任务都是基于YAML语言的
+1：变量--字母，数字，下划线组成
+	facts--获取主机的硬件信息
+	register--将任务的输入定义为变量，用于其他任务
+	通过命令行传参
+	通过roles传递变量
+	
+2：变量应用
+   主机变量--在inventory中自定义的主机，添加变量，可以在playbook中应用
+   组变量--赋予组内所有的主机可以在playbook中应用的变量
+   组嵌套--INVENTOTY中，组可以包含其他组，作为自己的子组
+           也可以给组内的主机指定变量，不过只能用于playbook
+   条件测试--根据变量，facts或者此前的任务执行结果来作为其他
+   					 任务的执行的条件，使用when语句。	
+	 迭代--需要重复执行的任务，将需要迭代的内容定义为item变量
+	 				引用，并通过with_items语句来指明迭代的元素列表即可。
+
+ansible-playbook 模块使用
+	playbook是一个或者多个play组成的列表,一个playbook中必须包含hosts，tasks
+	playbook中针对配置区域的划分
+	1：target section：要执行playbook的主机组
+	2：variables section：运行playbook需要使用的变量
+	3：task section：主机执行的任务列表
+	4：handler section：主机执行完tasks后需要调用的任务
+		 handler的最佳应用场景是用于重启服务，或者触发系统重启，此外很少使用
+		 
+ansible-playbook参数
+1：--list-tasks:流出执行文件的任务清单
+2: --step：没执行一个任务结束后暂停，由用户确认是否继续
+					 yes-执行下一个任务，continue-执行完当前play,
+3: --syntax-check：检查执行文件的YAML语法
+4: -C --check：检查执行结果是否会修改远程服务器
+
+tags:任务定义的标签，在执行playbook中，使用--tags能实现进执行指定tags的任务
+		ansible-playbook --tags=''
+		
+include:在playbook中使用include导入多个yaml文件
+	
+	
+	
+	
+	
+ansible-galaxy应用
+1：创建并初始化一个roles
+	 ansible-galaxy init roles/mysql
+2：查看安装的roles信息
+	 ansible-galaxy info mysql
+3：获取安装的roles
+   ansible-galaxy list

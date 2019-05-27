@@ -1,0 +1,26 @@
+vivado 的注册工作
+
+介绍：
+		注册vivado需要使用apvsys(apvsys是用来管理软件版本的)
+		在apvsys注册完成后，不同项目使用时候根据环境变量的设置自动切换EDA工具的版本
+	  apvsys注册具体的使用可参考文档
+	  /ap/apvroot/Linux/v2.6.32-504.el6.x86_64/apvsys/v1.12b/README
+流程：
+		How to setup ApVSys ?
+		1：切换用户到wenlili
+		2：切换到目录/ap/apvroot/Linux/v2.6.32-504.el6.x86_64/
+		3: 给需要安装的工具v2017.4新建工具目录，如/v2017.4
+		4: 将v2017.4工具的安装目录软连接到之前新建的目录下
+			 ln -s /root/duws/Vivado/2017.4/* /ap/apvroot/Linux/v2.6.32-504.el6.x86_64/vivado/v2017.4
+		5：执行注册命令
+			 apv-regtool -t vivado -v 2017.4 -L tingz
+			 参数：
+			 -t：工具名称
+			 -v: 工具版本
+			 -L: 是机器上已经建立的用户的用户名
+		6：注册结束后，执行测试命令：
+			 apv -V vivado
+			 查看是否有已经安装的工具版本。
+		7: 清除相关版本的工具
+		   apv-dbcheck -C -L tingz
+		   该命令执行需要在/apvsys 同目录下执行
