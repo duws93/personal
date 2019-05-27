@@ -1,0 +1,57 @@
+grafana 使用文档
+
+1：环境配置文件
+   /etc/sysconfig/grafana-server 文件
+   文件中修改日志目录，数据目录和其他一些环境变量
+   
+2：日志记录：
+默认情况日志记录到 /var/log/grafana 文件。
+
+3：数据库：
+默认配置指定的数据库 sqlite3 在 /var/lib/grafana/grafana.db
+也可以用 mysql 或者 postgres
+
+4：配置文件：
+配置文件存放在 /etc/grafana/grafana.ini 
+
+grafana 后端有许多配置选项，可以在一个配置文件或环境变量中指定。
+ini 配置文件以分号为注释 ；
+默认配置文件路径：$WORKING_DIR/conf/defaults.ini
+自定义配置文件：$WORKING/conf/custom.ini
+自定义配置文件路径可以使用 --config 参数覆盖
+
+注意：使用 rpm或者 deb 方式安装的，配置文件默认在 /etc/grafana/grafana.ini
+这个路径是由 init.d 脚本 --config 参数指定的。
+
+
+5：Grafana插件目录
+grafana-cli会假设grafana插件目录是/var/lib/grafana/plugins
+可以通过指定-pluginsDir标志来覆盖grafana-cli将要操作的目录
+在修改插件后进行任何修改之前，需要重新启动grafana-server
+
+
+6：grafana-cli命令
+
+列出可用的插件
+grafana-cli plugins list-remote
+
+安装最新版本的插件
+grafana-cli plugins install
+
+安装一个特定版本的插件
+grafana-cli plugins install
+
+列出已安装的插件
+grafana-cli plugins ls
+
+更新所有安装的插件
+grafana-cli plugins update-all
+
+更新一个插件
+grafana-cli plugins update
+
+删除一个插件
+grafana-cli plugins remove 
+
+
+

@@ -1,0 +1,104 @@
+YAML语法文档
+1：YAML使用冒号加缩进的方式代表层级，
+   使用短杠代表数组元素
+   
+2：YAML允许表示三种格式，分别是常量值，对象，数组
+   #属性值
+   url: http://www.wolfcode.cn
+   #server.host属性的值
+   server:
+       host: http://www.wolfcode.cn
+   #数组,server为[a,b,c]
+   server:
+      - 135.251.206.38
+      - 135.251.206.38
+   	  - 135.251.206.38
+   #常量
+   pi:3.14
+   hasChild:true
+   name:'string'
+   
+   
+3：YAML是区分大小写的，缩进不支持Tab
+		对象：
+		key:value
+		key:
+		    child-key:value
+		    child-key2:value2
+		缩进表示层级关系
+		YAML支持flow语法
+		key:{child-key:value,child-key2:value2}
+		对于复杂的对象格式，可以使用?加一个空格来代表key
+		使用冒号加一个空格来代表value
+		？
+		   - complexkey1
+		   - complexkey2
+		:
+		   - complexvalue1
+		   - complexvalue2
+		等同于数组[complexkey1,complexkey2]和[complexvalue1,complexvalue2]
+		
+		
+		数组
+		使用短线加一个空格代表数组项
+		hobby:
+		    - java
+		    - LOL
+		等同于
+		-
+			- java
+			- LOL
+		表示[[java,LOL]]
+		数组也支持流式语法	
+		
+4：YAML使用的特殊符号
+	1: ---来表示文档的开始
+	2：...来表示文档的结束
+	3：!!来做类型的强制转换
+	4：>在字符串中折叠换行，将换行符转化为空格，|保留换行符
+			accomplishment: >
+ 			 Mark set a major league
+ 			 home run record in 1998.
+			stats: |
+ 			 65 Home Runs
+ 			 0.278 Batting Average
+ 		 等同于
+ 		 accomplishment=Mark set a major league home run record in 1998
+ 		 stats=65 Home Runs
+ 			0.278 Batting Average
+	5:引用,使用&设置锚点，*来完成锚点引用。
+			hr:
+		 	 - Mark McGwire
+			 - &SS Sammy Sosa
+			rbi:
+			 - *SS 
+			 - Ken Griffey
+			等同于
+			{rbi=[Sammy Sosa, Ken Griffey], hr=[Mark McGwire, Sammy Sosa]}
+	6:合并内容，和锚点配合，将锚点内容直接合并到对象中。
+		merge:
+  	 - &CENTER { x: 1, y: 2 }
+  	 - &LEFT { x: 0, y: 2 }
+  	 - &BIG { r: 10 }
+  	 - &SMALL { r: 1 }
+  
+		sample1: 
+    	<<: *CENTER
+    	r: 10
+    
+		sample2:
+    	<< : [ *CENTER, *BIG ]
+    	other: haha
+    
+		sample3:
+    	<< : [ *CENTER, *BIG ]
+    	r: 100
+   等同于
+   sample1={r=10, y=2, x=1}
+   sample2={other=haha, x=1, y=2, r=10}
+   sample3={r=100, y=2, x=1}
+  通过合并，可以将配置中基础配置抽取出来，在不同子配置中合并即可
+  
+    	
+    	
+    	

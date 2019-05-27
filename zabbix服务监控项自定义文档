@@ -1,0 +1,78 @@
+zabbix服务监控项自定义文档
+
+日志监控目录：
+/var/log/zabbix_server.log
+/var/log/zabbix_agentd.log
+
+配置文件检索命令
+egrep -Ev '^#|^$' /etc/zabbix/zabbix_server.conf 
+egrep -Ev '^#|^$' /etc/zabbix/zabbix_agentd.conf
+
+1：iostat主要用于监控系统设备的IO负载情况，只能查看所有CPU的平均信息
+	使用：iostat -d -k 2
+	参数 -d 表示，显示设备（磁盘）使用状态；
+	-k某些使用block为单位的列强制使用Kilobytes为单位；
+	2表示，数据显示每隔2秒刷新一次。
+	
+	输出：
+	tps：该设备每秒的传输次数，"一次传输"意思是"一次I/O请求"。多个逻辑请求可能会被合并为"一次I/O请求"。"一次传输"请求的大小是未知的
+	kB_read/s：每秒从设备（drive expressed）读取的数据量；
+	kB_wrtn/s：每秒向设备（drive expressed）写入的数据量；
+	kB_read：读取的总数据量；
+	kB_wrtn：写入的总数量数据量；这些单位都为Kilobytes。
+	
+	%user：CPU处在用户模式下的时间百分比。
+	%nice：CPU处在带NICE值的用户模式下的时间百分比。
+	%system：CPU处在系统模式下的时间百分比。
+	%iowait：CPU等待输入输出完成时间的百分比。
+	%steal：管理程序维护另一个虚拟处理器时，虚拟CPU的无意识等待时间百分比。
+	%idle：CPU空闲时间百分比。
+	
+	注意：
+		在所有的显示中，我们应主要注意%iowait和%idle，
+		%iowait的值过高，表示硬盘存在I/O瓶颈，
+		%idle值高，表示CPU较空闲，如果%idle值高但系统响应慢时，
+		有可能是CPU等待分配内存，此时应加大内存容量。
+		%idle值如果持续低于10，那么系统的CPU处理能力相对较低，
+		表明系统中最需要解决的资源是CPU。
+
+
+2：vmstat能查看所有CPU的平均信息，能查看CPU队列信息
+   使用：vmstat -n 5
+	 -n 5 参数的意义是每隔 5 秒刷新一次
+	 
+	 输出：
+	 procs
+    r -- 下面的数字代表运行的序列。
+    如果这个值连续大于系统的CPU个数表示系统运行较慢
+    有多数进程等待CPU。 如果r的个数大于CPU的4倍的话
+    则系统面临CPU短缺或是CPU的速率过低，造成系统运行过慢
+	 System
+    in -- 每秒产生的中断次数
+    cs -- 每秒产生的上下文切换次数。
+    这两个值越大，系统进程消耗的CPU的时间越大
+	 CPU
+		us  -- 用户进程消耗CPU的时间百分比。长期居高不下， 就需要优化程序了。
+		sy   -- 系统进程消耗CPU的时间百分比。 sy 值高， 并不是良性的表现。
+		wa  -- IO等待消耗的CPU时间百分比， 值高时，说明IO等待比较严重， 可能由于磁盘大量随机访问造成， 也有可能磁盘出现瓶颈。
+		id  -- CPU 处于空闲时间百分比。如果持续为0且出现sy 是us 两倍状况，则系统面临CPU资源短缺。当发生此问题的时候请先调整应用程序对CPU的占用情况.使得应用程序能够更有效的使用CPU.同时可以考虑增加更多的CPU
+
+
+3：mpstat能查看单个和所有的CPU信息
+	 使用：mpstat -P ALL 2 10 
+	 -P 监控哪个CPU, 一般使用ALL就可以了
+	 2 间隔的时间
+	 10 采样的次数
+	 
+	 输出：
+	 %user -- 用户态CPU时间比
+	 %nice -- 负进程的CPU时间
+	 %system - 核心态时间
+	 iowait -- IO 等待时间
+	 irq --
+	 soft
+	 idle
+	 intr/s 每秒CPU接收中断的次数
+	 
+
+
