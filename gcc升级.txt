@@ -1,7 +1,0 @@
-linux 在安装更新GCC，涉及的依赖的包以及安装顺序
-顺序安装三个依赖gmp、mpfr、mpc
-
-主要内容参考书签。https://blog.csdn.net/cathy0322/article/details/48546197
-
-
-
