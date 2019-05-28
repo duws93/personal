@@ -1,0 +1,40 @@
+[base]
+name=CentOS-6 - Base - rndmirrors.alcatel-sbell.com.cn
+baseurl=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/6/os/i386/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os
+gpgcheck=1
+gpgkey=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/RPM-GPG-KEY-CentOS-6
+ 
+#released updates 
+[updates]
+name=CentOS-6 - Updates - rndmirrors.alcatel-sbell.com.cn
+baseurl=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/6/updates/i386/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates
+gpgcheck=1
+gpgkey=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/RPM-GPG-KEY-CentOS-6
+ 
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Extras - rndmirrors.alcatel-sbell.com.cn
+baseurl=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/6/extras/i386/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras
+gpgcheck=1
+gpgkey=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/RPM-GPG-KEY-CentOS-6
+ 
+#additional packages that extend functionality of existing packages
+[centosplus]
+name=CentOS-6 - Plus - rndmirrors.alcatel-sbell.com.cn
+baseurl=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/6/centosplus/i386/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=centosplus
+gpgcheck=1
+enabled=0
+gpgkey=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/RPM-GPG-KEY-CentOS-6
+ 
+#contrib - packages by Centos Users
+[contrib]
+name=CentOS-6 - Contrib - rndmirrors.alcatel-sbell.com.cn
+baseurl=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/6/contrib/i386/
+#mirrorlist=http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=contrib
+gpgcheck=1
+enabled=0
+gpgkey=http://rndmirrors.alcatel-sbell.com.cn/mirrors/centos/RPM-GPG-KEY-CentOS-6
