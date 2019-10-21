@@ -76,3 +76,49 @@ egrep -Ev '^#|^$' /etc/zabbix/zabbix_agentd.conf
 	 
 
 
+在给rhel 32位机器安装zabbix出现的情况：
+1：libc.so.10库相关的问题，需求更新openssl版本，
+	 使用rpm -Uvh openssl.rpm --nodeps --force 命令
+	 进行安装
+	 
+2：遇到rpmts_HdrFromFdno: Header V4 DSA/SHA1 Signature, key ID 79ea5ed4: NOKEY
+	 方案一：
+	 			rpm  --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+	 方案二:
+	 			/etc/yum.conf 文件中,将gpgcheck=1改为gpgcheck=0
+	 			这种处理效果最佳。
+   方案三：
+    		在安装过程中，加上--nogbpcheck参数。	 		
+    		
+    		
+    		
+在数据库中改zabbix用户密码:
+    		
+update users set passwd=md5('123456') where userid='1';  
+# 此处不能用 update users set passwd=password('123456') where userid='1'; 
+zabbix没有这个方法.
+
+flush privileges;  # 刷新权限表	
+
+
+
+
+设置zabbix agent 主被动监控
+
+主动：agent请求server获取主动的监控项列表，并主动将监控项内需要检测的数据提交给server/proxy
+
+纯主动模式的配置：
+#Server=10.10.10.201   如果设置为纯被动模式，则应该注释掉这一条指令
+StartAgents=0    设置为0表示关闭被动模式
+ServerActive=10.10.10.201   主动模式的server IP地址
+Hostname=PMS001         客户端的hostname，不配置则使用主机名
+# RefreshActiveChecks=120  客户端向服务器请求items列表的刷新时间间隔，默认120s即可
+纯主动模式下的zabbix agent，只能支持Zabbix Agent (Active)类型的监控项。
+
+
+被动：server向agent请求获取监控项的数据，agent返回数据
+
+Server=10.10.10.201
+StartAgents=1 #开启被动模式
+Hostname=test
+agent客户端注意开放10050端口，zabbix server需要连接到此端口进行通讯

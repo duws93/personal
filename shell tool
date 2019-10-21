@@ -175,4 +175,52 @@ https://github.com/steve0511/resty-redis-cluster
 
 
 
+处理
+		"module_stderr": "Traceback (most recent call last):\n  File \"<stdin>\", line 114, in <module>\n  File \"<stdin>\", line 20, in _ansiballz_main\n  File \"/usr/lib64/python2.7/tempfile.py\", line 35, in <module>\n    from random import Random as _Random\n  File \"/usr/lib64/python2.7/random.py\", line 49, in <module>\n    import hashlib as _hashlib\n  File \"build/bdist.linux-x86_64/egg/hashlib.py\", line 136, in <module>\n    from _hashlib import pbkdf2_hmac\n  File \"build/bdist.linux-x86_64/egg/hashlib.py\", line 63, in __get_builtin_constructor\n    >>> m.update(\"Nobody inspects\")\nImportError: No module named _md5\n", 
+    "module_stdout": "", 
+    "msg": "MODULE FAILURE\nSee stdout/stderr for the exact error", 
+错误
 
+原因是import hashlib as _hashlib，
+hashlib: no such attribute: “openssl_md_meth_names”
+
+
+解决方法：
+python 进入命令行,import hashlib as _hashlib , print _hashlib.__file__
+发现并不是指向python库路径下的hashlib.pyc文件，需要删除目前路径下的hashlib-20081119-py2.7-linux-x86_64.egg 
+指向python库下的hashlib.pyc 文件
+
+
+
+
+
+处理rpm安装包工具被无意卸载事故
+1：拷贝相同系统下的rpm安装包
+	 /bin/rpm /etc/rpm /usr/lib/rpm /usr/share/man/man8/rpm.8.gz
+
+2：安装yum工具
+	 rpm -ivh --force --nodeps python-* rpm-python-* yum-*
+	
+3：测试是否安装成功
+
+
+
+
+
+处理机器下多版本python安装问题
+
+1：检测环境python编译的编码
+   import sys
+   print sys.maxunicode
+   1114111，是ucs4编码
+   65535，是ucs2编码
+   
+2: 如果是通过yum 安装，系统默认版本可以使用，而个人用户下版本无法使用
+   先确认缺少的库，再定位应用这个库的路径，将其copy 至个人版本下
+   如果是因为编码问题，copy的库无法使用，那么就采取重编译方案
+     下载一个与个人用户下版本一致的python源码，编码选择--enable-unicode=ucs2/4，
+     重新进行./configure --prefix=编译出的文件存放目录  --enable-unicode=ucs2
+     make clean && make && make install
+     最后将编译出来的库copy过去，即可
+     
+3：如果是通过pip 安装，则去个人用户版本下的python目录下的pip去安装组件即可。
